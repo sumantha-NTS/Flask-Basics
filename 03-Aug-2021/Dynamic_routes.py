@@ -13,6 +13,6 @@ def index():        ### defining function
 def user(name):
     return '<h1>Hi {} </h1>'.format(name)
 
-@app.route('/redirect')
-def redirect():
+@app.route('/wow')
+def wow():
     return redirect('https://www.wowlabz.com/',code=302)
