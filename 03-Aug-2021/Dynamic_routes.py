@@ -15,4 +15,4 @@ def user(name):
 
 @app.route('/redirect')
 def redirect():
-    return redirect('https://www.wowlabz.com/')
+    return redirect('https://www.wowlabz.com/',code=302)
