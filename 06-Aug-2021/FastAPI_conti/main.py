@@ -1,10 +1,12 @@
 from fastapi import FastAPI
-import schemas
+import schemas,models
+from database import engine
 
 
 # initiating the FastAPI application
 app = FastAPI()
 
+models.Base.metadata.create_all(engine)
 
 #post decorator
 @app.post('/blog')
@@ -17,6 +19,6 @@ def create_blog(blog:schemas.blog):
 
 
 
-### to run in different port
+# ### to run in different port
 # if __name__ == "__main__":
 #     uvicorn.run(app,host="127.0.0.1",port=9000)
