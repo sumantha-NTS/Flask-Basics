@@ -1,14 +1,37 @@
+from datetime import date
+from typing import List
 from pydantic import BaseModel
 
 class blog(BaseModel):
     title: str
-    author: str
-
-class ShowBlog(blog):
+    body: str
     class Config:
         orm_mode = True
 
 class User(BaseModel):
-    Name: str
+    name: str
     email:str
     password:str
+    DOB :date
+
+class ShowUser(BaseModel):
+    name: str
+    email: str
+    Blogs: List[blog] = []
+    class Config:
+        orm_mode = True
+
+class ShowUser1(BaseModel):
+    name: str
+    email: str
+    class Config:
+        orm_mode = True
+        
+class ShowBlog(blog):
+    creator: ShowUser1
+    class Config:
+        orm_mode = True
+
+class Login(BaseModel):
+    username: str
+    password: str
