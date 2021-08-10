@@ -3,7 +3,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.param_functions import Depends
 from sqlalchemy.orm.session import Session
 from fastapi import status
-import schemas,models,token_1
+import models,token_1
 from database import get_db
 from hashing import Hash
 from fastapi.security import OAuth2PasswordRequestForm
