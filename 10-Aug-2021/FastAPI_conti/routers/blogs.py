@@ -1,7 +1,9 @@
 from fastapi import APIRouter,Depends,status, HTTPException,Response
 from sqlalchemy.orm import Session
 from typing import List
-import schemas,models
+
+from sqlalchemy.sql.functions import user
+import schemas,models, oauth2
 from database import get_db
 
 
@@ -11,21 +13,22 @@ router = APIRouter(
 )
 
 @router.get('/',response_model=List[schemas.ShowBlog])
-def show_all(db:Session = Depends(get_db),limit: int = 10,):
+def show_all(db:Session = Depends(get_db),limit: int = 10,current_user = Depends(oauth2.get_current_user)):
     blogs = db.query(models.blog).limit(limit).all()
     return blogs
 
 #post decorator
 @router.post('/',status_code=status.HTTP_201_CREATED)
-def create_blog(blog:schemas.blog, db:Session = Depends(get_db)):
-    new_blog = models.blog(title = blog.title, body = blog.body,user_id =1)
+def create_blog(blog:schemas.blog, db:Session = Depends(get_db),current_user = Depends(oauth2.get_current_user)):
+    users = db.query(models.User).filter(models.User.email == current_user).first()
+    new_blog = models.blog(title = blog.title, body = blog.body,user_id =users.id)
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
     return new_blog
 
 @router.delete('/{id}',status_code=status.HTTP_204_NO_CONTENT)
-def delete_blog(id: int, db:Session = Depends(get_db)):
+def delete_blog(id: int, db:Session = Depends(get_db),current_user = Depends(oauth2.get_current_user)):
     blog_delete = db.query(models.blog).filter(models.blog.id == id)
 
     if not blog_delete.first():
@@ -36,7 +39,7 @@ def delete_blog(id: int, db:Session = Depends(get_db)):
     return {'message':f'BBlog with id deleted'}
 
 @router.put('/{id}',status_code = status.HTTP_202_ACCEPTED)
-def update(id: int, blog: schemas.blog, db:Session = Depends(get_db)):
+def update(id: int, blog: schemas.blog, db:Session = Depends(get_db),current_user = Depends(oauth2.get_current_user)):
     blog_update = db.query(models.blog).filter(models.blog.id == id)
 
     if not blog_update.first():
@@ -48,7 +51,7 @@ def update(id: int, blog: schemas.blog, db:Session = Depends(get_db)):
     return {'message':{'updated data':updated}}
 
 @router.get('/{id}',response_model=schemas.ShowBlog)
-def show_blog(id : int, response: Response, db:Session = Depends(get_db)):
+def show_blog(id : int, response: Response, db:Session = Depends(get_db),current_user = Depends(oauth2.get_current_user)):
     blog_1 = db.query(models.blog).filter(models.blog.id == id).first()
 
     if not blog_1:

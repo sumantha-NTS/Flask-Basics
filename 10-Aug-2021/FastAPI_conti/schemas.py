@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 class blog(BaseModel):
@@ -35,3 +35,11 @@ class ShowBlog(blog):
 class Login(BaseModel):
     username: str
     password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
