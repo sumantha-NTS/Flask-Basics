@@ -23,7 +23,6 @@ def index():
         if (old_name is not None) and (old_name!=form.name.data):       ## just to flash a message
             flash('Looks like you have changed your name!')
         session['name'] = form.name.data        ### getting the name data
-        flash('Nice name!!!')
         return redirect(url_for('index'))       ### redirecting to index function again
     return render_template('index.html',form = form, name=session.get('name')) 
 
