@@ -1,7 +1,7 @@
 from flask import Flask,render_template
 from flask.helpers import flash
 from flask_bootstrap import Bootstrap
-from schemas import Classi_Form,Regree_Form
+from schemas import Classi_Form,Regree_Form,classification_model
 
 
 app = Flask(__name__)
@@ -24,7 +24,9 @@ def classification():
         humi = form.humi.data
         ph = form.ph.data
         rain = form.rain.data
-        flash([p,k,n,temp,humi,ph,rain])
+
+        result = classification_model(p,k,n,temp,humi,ph,rain)
+        flash(f'Predicted Crop is {result.upper()}')
     return render_template('classification.html',form = form)
 
 @app.route('/Regression',methods=['GET','POST'])

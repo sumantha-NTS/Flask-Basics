@@ -4,11 +4,18 @@ from wtforms.fields.core import IntegerField
 from wtforms.validators import DataRequired
 import pickle, sklearn
 
-brand = pickle.load(open('pickle_files/brand.pkl','rb'))
-fuel = pickle.load(open('pickle_files/fuel_type.pkl','rb'))
-gear = pickle.load(open('pickle_files/gearbox.pkl','rb'))
-repair = pickle.load(open('pickle_files/repair.pkl','rb'))
-vehicle_type = pickle.load(open('pickle_files/vehicle_type.pkl','rb'))
+# regression algorithm pickle files
+brand = pickle.load(open('pickle_files_regre/brand.pkl','rb'))
+fuel = pickle.load(open('pickle_files_regre/fuel_type.pkl','rb'))
+gear = pickle.load(open('pickle_files_regre/gearbox.pkl','rb'))
+repair = pickle.load(open('pickle_files_regre/repair.pkl','rb'))
+vehicle_type = pickle.load(open('pickle_files_regre/vehicle_type.pkl','rb'))
+
+# classification algorithm pickle files
+classifier = pickle.load(open('pickle_files_class/classifier.pkl','rb'))
+scalar = pickle.load(open('pickle_files_class/scalar.pkl','rb'))
+encoder = pickle.load(open('pickle_files_class/encoder.pkl','rb'))
+
 
 class Classi_Form(FlaskForm):
     p = FloatField('Phosphorous',validators=[DataRequired()])
@@ -31,3 +38,9 @@ class Regree_Form(FlaskForm):
     repair = SelectField('Is vehicle repaired...?',choices=repair.classes_)
 
     submit = SubmitField('Submit')
+
+
+# defining function to get the results
+def classification_model(p,k,n,temp,humi,ph,rain):
+    scaled_data = scalar.transform([[p,k,n,temp,humi,ph,rain]])
+    return encoder.classes_[int(classifier.predict(scaled_data))]
