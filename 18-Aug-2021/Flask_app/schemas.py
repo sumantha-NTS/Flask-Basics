@@ -3,13 +3,17 @@ from wtforms import FloatField,SubmitField,DateField,SelectField
 from wtforms.fields.core import IntegerField
 from wtforms.validators import DataRequired
 import pickle, sklearn
+from datetime import datetime
+import numpy as np
 
 # regression algorithm pickle files
-brand = pickle.load(open('pickle_files_regre/brand.pkl','rb'))
-fuel = pickle.load(open('pickle_files_regre/fuel_type.pkl','rb'))
-gear = pickle.load(open('pickle_files_regre/gearbox.pkl','rb'))
-repair = pickle.load(open('pickle_files_regre/repair.pkl','rb'))
-vehicle_type = pickle.load(open('pickle_files_regre/vehicle_type.pkl','rb'))
+brand_encode = pickle.load(open('pickle_files_regre/brand.pkl','rb'))
+fuel_encode = pickle.load(open('pickle_files_regre/fuel.pkl','rb'))
+owner_encode = pickle.load(open('pickle_files_regre/owner.pkl','rb'))
+seller_encode = pickle.load(open('pickle_files_regre/seller.pkl','rb'))
+trans_encode = pickle.load(open('pickle_files_regre/transmission.pkl','rb'))
+scalar_regre = pickle.load(open('pickle_files_regre/scalar.pkl','rb'))
+regressor = pickle.load(open('pickle_files_regre/decision_tree.pkl','rb'))
 
 # classification algorithm pickle files
 classifier = pickle.load(open('pickle_files_class/classifier.pkl','rb'))
@@ -29,13 +33,16 @@ class Classi_Form(FlaskForm):
     submit = SubmitField('Submit')
 
 class Regree_Form(FlaskForm):
-    date = DateField('Registration Date',validators=[DataRequired()],format='%Y-%m')
-    vtype = SelectField('Vehicle Type',choices=vehicle_type.classes_)
-    gear = SelectField('Gear Box',choices=gear.classes_)
-    km = IntegerField('Kilometer',validators=[DataRequired()])
-    fuel = SelectField('Fuel Type',choices=fuel.classes_)
-    brand = SelectField('Vehicle Brand', choices=brand.classes_)
-    repair = SelectField('Is vehicle repaired...?',choices=repair.classes_)
+    date = DateField('Registration Year (YYYY)',format='%Y')
+    brand = SelectField('Brand',choices=brand_encode.classes_)
+    km = IntegerField('Kilometer')
+    fuel = SelectField('Fuel Type',choices=fuel_encode.classes_)
+    seller = SelectField('Seller Type',choices=seller_encode.classes_)
+    transmission = SelectField('Transmission',choices=trans_encode.classes_)
+    owner = SelectField('Owner type', choices=owner_encode.classes_)
+    seats = IntegerField('No. of Seats')
+    milage = FloatField('Milage in kmpl')
+    engine = IntegerField('Engine CC')
 
     submit = SubmitField('Submit')
 
@@ -44,3 +51,21 @@ class Regree_Form(FlaskForm):
 def classification_model(p,k,n,temp,humi,ph,rain):
     scaled_data = scalar.transform([[p,k,n,temp,humi,ph,rain]])
     return encoder.classes_[int(classifier.predict(scaled_data))]
+
+# defining function for getting results of regression model
+def regression_model(Date,brand,km,fuel,seller,trans,owner,seat,milage,cc):
+    year = Date.year
+    brand = int(brand_encode.transform([brand]))
+    seller = int(seller_encode.transform([seller]))
+    transmission = int(trans_encode.transform([trans]))
+    fuel = int(fuel_encode.transform([fuel]))
+    owner = int(owner_encode.transform([owner]))
+
+    # calculating the age of the vehicle
+    age = datetime.now().year - year
+
+    scaled_data = scalar_regre.transform([[km,fuel,seller,transmission,owner,seat,brand,milage,cc,age]])
+
+    result = np.exp(regressor.predict(scaled_data))
+
+    return result

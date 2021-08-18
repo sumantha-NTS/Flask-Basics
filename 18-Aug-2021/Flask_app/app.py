@@ -1,7 +1,7 @@
 from flask import Flask,render_template
 from flask.helpers import flash
 from flask_bootstrap import Bootstrap
-from schemas import Classi_Form,Regree_Form,classification_model
+from schemas import Classi_Form,Regree_Form,classification_model, regression_model
 
 
 app = Flask(__name__)
@@ -33,10 +33,19 @@ def classification():
 def regression():
     form = Regree_Form()
     if form.validate_on_submit():
-        date = form.date.data.year
-        month = form.date.data.month
-        vtype = form.vtype.data
-        flash(month)
+        date = form.date.data
+        brand = form.brand.data
+        km = form.km.data
+        fuel = form.fuel.data
+        seller = form.seller.data
+        trans = form.transmission.data
+        owner = form.owner.data
+        seat = form.seats.data
+        milage = form.milage.data
+        cc = form.engine.data
+
+        result = regression_model(date,brand,km,fuel,seller,trans,owner,seat,milage,cc)
+        flash(result)
 
     return render_template('regression.html',form=form)
 
